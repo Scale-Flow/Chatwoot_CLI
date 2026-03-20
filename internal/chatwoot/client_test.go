@@ -100,3 +100,53 @@ func TestAPIErrorFormat(t *testing.T) {
 		t.Errorf("Error() = %q", got)
 	}
 }
+
+func TestDecodeResponse(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		w.Write([]byte(`{"id":42,"name":"Test"}`))
+	}))
+	defer srv.Close()
+
+	c := NewClient(srv.URL, "sk-test", "api_access_token")
+	resp, _ := c.Do(context.Background(), http.MethodGet, "/test", nil)
+
+	var result struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	}
+	err := DecodeResponse(resp, &result)
+	if err != nil {
+		t.Fatalf("DecodeResponse error: %v", err)
+	}
+	if result.ID != 42 {
+		t.Errorf("ID = %d, want 42", result.ID)
+	}
+	if result.Name != "Test" {
+		t.Errorf("Name = %q, want %q", result.Name, "Test")
+	}
+}
+
+func TestDecodeResponseError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+		w.Write([]byte(`{"message":"not found"}`))
+	}))
+	defer srv.Close()
+
+	c := NewClient(srv.URL, "sk-test", "api_access_token")
+	resp, _ := c.Do(context.Background(), http.MethodGet, "/test", nil)
+
+	var result struct{}
+	err := DecodeResponse(resp, &result)
+	if err == nil {
+		t.Fatal("expected error for 404 response")
+	}
+	apiErr, ok := err.(*APIError)
+	if !ok {
+		t.Fatalf("err type = %T, want *APIError", err)
+	}
+	if apiErr.Code != "not_found" {
+		t.Errorf("Code = %q, want %q", apiErr.Code, "not_found")
+	}
+}

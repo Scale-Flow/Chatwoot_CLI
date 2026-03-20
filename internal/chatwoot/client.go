@@ -3,7 +3,9 @@ package chatwoot
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -77,4 +79,47 @@ func (c *Client) Do(ctx context.Context, method, path string, body []byte) (*htt
 	}
 
 	return c.http.Do(req)
+}
+
+// DecodeResponse reads and decodes an HTTP response.
+// For 2xx responses, it decodes the body into target.
+// For non-2xx responses, it returns an *APIError.
+func DecodeResponse(resp *http.Response, target any) error {
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("read response body: %w", err)
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		if target != nil && len(body) > 0 {
+			if err := json.Unmarshal(body, target); err != nil {
+				return fmt.Errorf("decode response: %w", err)
+			}
+		}
+		return nil
+	}
+
+	apiErr := &APIError{
+		StatusCode: resp.StatusCode,
+		Code:       MapHTTPStatus(resp.StatusCode),
+	}
+
+	var errBody struct {
+		Message string `json:"message"`
+		Error   string `json:"error"`
+	}
+	if json.Unmarshal(body, &errBody) == nil {
+		if errBody.Message != "" {
+			apiErr.Message = errBody.Message
+		} else if errBody.Error != "" {
+			apiErr.Message = errBody.Error
+		}
+	}
+	if apiErr.Message == "" {
+		apiErr.Message = http.StatusText(resp.StatusCode)
+	}
+
+	return apiErr
 }
