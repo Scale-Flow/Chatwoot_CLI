@@ -13,8 +13,8 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "chatwoot",
-	Short: "Chatwoot CLI — machine-friendly command-line interface for Chatwoot",
+	Use:           "chatwoot",
+	Short:         "Chatwoot CLI — machine-friendly command-line interface for Chatwoot",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
