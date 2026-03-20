@@ -50,3 +50,51 @@ func TestProfileGet(t *testing.T) {
 		t.Errorf("name = %v, want Test Agent", data["name"])
 	}
 }
+
+func TestProfileUpdateRequiresFlag(t *testing.T) {
+	Cmd.SetOut(&bytes.Buffer{})
+	Cmd.SetErr(&bytes.Buffer{})
+	Cmd.Root().SetArgs([]string{"application", "profile", "update"})
+	err := Cmd.Root().Execute()
+	if err == nil {
+		t.Fatal("expected error when no flags provided")
+	}
+}
+
+func TestProfileUpdate(t *testing.T) {
+	var gotMethod string
+	var gotBody map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotMethod = r.Method
+		json.NewDecoder(r.Body).Decode(&gotBody)
+		json.NewEncoder(w).Encode(map[string]any{
+			"id":    1,
+			"name":  "New Name",
+			"email": "agent@test.com",
+		})
+	}))
+	defer srv.Close()
+
+	t.Setenv("CHATWOOT_BASE_URL", srv.URL)
+	t.Setenv("CHATWOOT_ACCESS_TOKEN", "sk-test-token")
+
+	var stdout bytes.Buffer
+	Cmd.SetOut(&stdout)
+	Cmd.SetErr(&bytes.Buffer{})
+	Cmd.Root().SetArgs([]string{"application", "profile", "update", "--name", "New Name"})
+	err := Cmd.Root().Execute()
+	if err != nil {
+		t.Fatalf("Execute error: %v", err)
+	}
+
+	if gotMethod != "PATCH" {
+		t.Errorf("method = %q, want PATCH", gotMethod)
+	}
+	if gotBody["name"] != "New Name" {
+		t.Errorf("body name = %v, want New Name", gotBody["name"])
+	}
+	// email should not be in body (not set)
+	if _, exists := gotBody["email"]; exists {
+		t.Error("email should not be in body when not set")
+	}
+}
