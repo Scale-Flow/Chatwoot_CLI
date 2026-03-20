@@ -2,6 +2,7 @@ package chatwoot
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -64,5 +65,38 @@ func TestClientPost(t *testing.T) {
 	}
 	if string(gotBody) != `{"content":"hello"}` {
 		t.Errorf("body = %q, want %q", string(gotBody), `{"content":"hello"}`)
+	}
+}
+
+func TestMapHTTPError(t *testing.T) {
+	tests := []struct {
+		status   int
+		wantCode string
+	}{
+		{401, "unauthorized"},
+		{403, "forbidden"},
+		{404, "not_found"},
+		{422, "validation_error"},
+		{429, "rate_limited"},
+		{500, "server_error"},
+		{502, "server_error"},
+		{503, "server_error"},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("status_%d", tt.status), func(t *testing.T) {
+			code := MapHTTPStatus(tt.status)
+			if code != tt.wantCode {
+				t.Errorf("MapHTTPStatus(%d) = %q, want %q", tt.status, code, tt.wantCode)
+			}
+		})
+	}
+}
+
+func TestAPIErrorFormat(t *testing.T) {
+	err := &APIError{StatusCode: 404, Code: "not_found", Message: "Conversation not found"}
+	got := err.Error()
+	if got != "chatwoot API error 404: not_found \u2014 Conversation not found" {
+		t.Errorf("Error() = %q", got)
 	}
 }
