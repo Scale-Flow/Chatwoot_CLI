@@ -73,9 +73,7 @@ func TestResolveProfile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.envProfile != "" {
-				t.Setenv("CHATWOOT_PROFILE", tt.envProfile)
-			}
+			t.Setenv("CHATWOOT_PROFILE", tt.envProfile)
 			name, profile, err := cfg.ResolveProfile(tt.flagProfile)
 			if err != nil {
 				t.Fatalf("ResolveProfile error: %v", err)
@@ -140,12 +138,8 @@ func TestResolveOverrides(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.envBaseURL != "" {
-				t.Setenv("CHATWOOT_BASE_URL", tt.envBaseURL)
-			}
-			if tt.envAccountID != "" {
-				t.Setenv("CHATWOOT_ACCOUNT_ID", tt.envAccountID)
-			}
+			t.Setenv("CHATWOOT_BASE_URL", tt.envBaseURL)
+			t.Setenv("CHATWOOT_ACCOUNT_ID", tt.envAccountID)
 			resolved := ResolveOverrides(profile, tt.flagBaseURL, tt.flagAccountID)
 			if resolved.BaseURL != tt.wantURL {
 				t.Errorf("BaseURL = %q, want %q", resolved.BaseURL, tt.wantURL)
