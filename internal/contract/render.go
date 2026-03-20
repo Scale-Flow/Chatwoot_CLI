@@ -58,6 +58,9 @@ func validate(resp Response) error {
 	if resp.OK && resp.Error != nil {
 		return errors.New("contract violation: ok is true but error is set")
 	}
+	if resp.OK && resp.Data == nil {
+		return errors.New("contract violation: ok is true but data is nil")
+	}
 	if !resp.OK && resp.Data != nil {
 		return errors.New("contract violation: ok is false but data is set")
 	}

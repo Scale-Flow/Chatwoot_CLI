@@ -256,6 +256,15 @@ func TestValidationRejectsOkTrueWithError(t *testing.T) {
 	}
 }
 
+func TestValidationRejectsOkTrueWithNilData(t *testing.T) {
+	resp := Response{OK: true}
+	var buf bytes.Buffer
+	err := Write(&buf, resp, false)
+	if err == nil {
+		t.Fatal("expected validation error")
+	}
+}
+
 func TestValidationRejectsOkFalseWithData(t *testing.T) {
 	resp := Response{OK: false, Data: "x", Error: &ErrorDetail{Code: "bad", Message: "bad"}}
 	var buf bytes.Buffer
