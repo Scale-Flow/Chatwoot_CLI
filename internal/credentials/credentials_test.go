@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	keyring "github.com/zalando/go-keyring"
 )
 
 func TestEnvStoreGetApplication(t *testing.T) {
@@ -108,5 +110,49 @@ func TestFileStoreRejectsWidePerm(t *testing.T) {
 	_, err = store.Get("work", ModeApplication)
 	if err == nil {
 		t.Fatal("expected error for wide permissions")
+	}
+}
+
+func TestKeychainStoreRoundTrip(t *testing.T) {
+	keyring.MockInit()
+	store := NewKeychainStore()
+
+	err := store.Set("work", ModeApplication, "sk-keychain-secret")
+	if err != nil {
+		t.Fatalf("Set error: %v", err)
+	}
+
+	token, err := store.Get("work", ModeApplication)
+	if err != nil {
+		t.Fatalf("Get error: %v", err)
+	}
+	if token != "sk-keychain-secret" {
+		t.Errorf("token = %q, want %q", token, "sk-keychain-secret")
+	}
+}
+
+func TestKeychainStoreGetNotFound(t *testing.T) {
+	keyring.MockInit()
+	store := NewKeychainStore()
+
+	_, err := store.Get("nonexistent", ModeApplication)
+	if err != ErrNotFound {
+		t.Errorf("err = %v, want ErrNotFound", err)
+	}
+}
+
+func TestKeychainStoreDelete(t *testing.T) {
+	keyring.MockInit()
+	store := NewKeychainStore()
+
+	_ = store.Set("work", ModeApplication, "sk-secret")
+	err := store.Delete("work", ModeApplication)
+	if err != nil {
+		t.Fatalf("Delete error: %v", err)
+	}
+
+	_, err = store.Get("work", ModeApplication)
+	if err != ErrNotFound {
+		t.Errorf("after delete: err = %v, want ErrNotFound", err)
 	}
 }
