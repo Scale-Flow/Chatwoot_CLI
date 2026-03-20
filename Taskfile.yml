@@ -1,0 +1,39 @@
+version: '3'
+
+vars:
+  GIT_TAG:
+    sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
+  GIT_COMMIT:
+    sh: git rev-parse --short HEAD
+  BUILD_DATE:
+    sh: date -u '+%Y-%m-%dT%H:%M:%SZ'
+  LDFLAGS: >-
+    -X github.com/chatwoot/chatwoot-cli/internal/version.Version={{.GIT_TAG}}
+    -X github.com/chatwoot/chatwoot-cli/internal/version.Commit={{.GIT_COMMIT}}
+    -X github.com/chatwoot/chatwoot-cli/internal/version.Date={{.BUILD_DATE}}
+
+tasks:
+  build:
+    desc: Build the chatwoot binary
+    cmds:
+      - go build -ldflags "{{.LDFLAGS}}" -o chatwoot ./cmd/chatwoot/
+
+  test:
+    desc: Run all tests
+    cmds:
+      - go test ./...
+
+  lint:
+    desc: Run linters
+    cmds:
+      - golangci-lint run ./...
+
+  fmt:
+    desc: Format all Go files
+    cmds:
+      - gofmt -w .
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
