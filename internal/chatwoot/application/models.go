@@ -12,6 +12,14 @@ type Profile struct {
 	CreatedAt chatwoot.Timestamp `json:"created_at,omitempty"`
 }
 
+// UpdateProfileOpts holds optional fields for updating a profile.
+// Pointer fields are used so only explicitly set values are serialized.
+type UpdateProfileOpts struct {
+	Name         *string `json:"name,omitempty"`
+	Email        *string `json:"email,omitempty"`
+	Availability *string `json:"availability,omitempty"`
+}
+
 // Conversation represents a Chatwoot conversation.
 type Conversation struct {
 	ID          int              `json:"id"`

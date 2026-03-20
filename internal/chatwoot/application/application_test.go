@@ -78,6 +78,42 @@ func TestListConversations(t *testing.T) {
 	}
 }
 
+func TestUpdateProfile(t *testing.T) {
+	var gotMethod string
+	var gotBody map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotMethod = r.Method
+		if r.URL.Path != "/api/v1/profile" {
+			t.Errorf("path = %q, want /api/v1/profile", r.URL.Path)
+		}
+		json.NewDecoder(r.Body).Decode(&gotBody)
+		json.NewEncoder(w).Encode(map[string]any{
+			"id":    1,
+			"name":  "Updated Name",
+			"email": "agent@test.com",
+		})
+	}))
+	defer srv.Close()
+
+	transport := chatwoot.NewClient(srv.URL, "sk-test", "api_access_token")
+	client := NewClient(transport, 1)
+
+	name := "Updated Name"
+	profile, err := client.UpdateProfile(context.Background(), UpdateProfileOpts{Name: &name})
+	if err != nil {
+		t.Fatalf("UpdateProfile error: %v", err)
+	}
+	if gotMethod != "PATCH" {
+		t.Errorf("method = %q, want PATCH", gotMethod)
+	}
+	if gotBody["name"] != "Updated Name" {
+		t.Errorf("body name = %v, want Updated Name", gotBody["name"])
+	}
+	if profile.Name != "Updated Name" {
+		t.Errorf("Name = %q, want %q", profile.Name, "Updated Name")
+	}
+}
+
 func TestGetConversation(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/api/v1/accounts/1/conversations/42" {
