@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	cliapp "github.com/chatwoot/chatwoot-cli/internal/cli/application"
 	cliauth "github.com/chatwoot/chatwoot-cli/internal/cli/auth"
 	"github.com/spf13/cobra"
 )
@@ -49,6 +50,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&baseURLFlag, "base-url", "", "Override base URL")
 	rootCmd.PersistentFlags().IntVar(&accountIDFlag, "account-id", 0, "Override account ID")
 	rootCmd.AddCommand(cliauth.Cmd)
+	rootCmd.AddCommand(cliapp.Cmd)
 }
 
 // Execute runs the root command and returns an exit code.
