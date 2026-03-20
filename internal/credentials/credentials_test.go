@@ -156,3 +156,73 @@ func TestKeychainStoreDelete(t *testing.T) {
 		t.Errorf("after delete: err = %v, want ErrNotFound", err)
 	}
 }
+
+func TestResolverEnvWins(t *testing.T) {
+	t.Setenv("CHATWOOT_ACCESS_TOKEN", "env-token")
+	keyring.MockInit()
+	ks := NewKeychainStore()
+	_ = ks.Set("work", ModeApplication, "keychain-token")
+
+	dir := t.TempDir()
+	fs := NewFileStore(filepath.Join(dir, "creds.yaml"))
+	_ = fs.Set("work", ModeApplication, "file-token")
+
+	resolver := NewResolver(&EnvStore{}, ks, fs)
+	token, source, err := resolver.Get("work", ModeApplication)
+	if err != nil {
+		t.Fatalf("Get error: %v", err)
+	}
+	if token != "env-token" {
+		t.Errorf("token = %q, want %q", token, "env-token")
+	}
+	if source != SourceEnv {
+		t.Errorf("source = %q, want %q", source, SourceEnv)
+	}
+}
+
+func TestResolverKeychainFallback(t *testing.T) {
+	keyring.MockInit()
+	ks := NewKeychainStore()
+	_ = ks.Set("work", ModeApplication, "keychain-token")
+
+	resolver := NewResolver(&EnvStore{}, ks, nil)
+	token, source, err := resolver.Get("work", ModeApplication)
+	if err != nil {
+		t.Fatalf("Get error: %v", err)
+	}
+	if token != "keychain-token" {
+		t.Errorf("token = %q, want %q", token, "keychain-token")
+	}
+	if source != SourceKeychain {
+		t.Errorf("source = %q, want %q", source, SourceKeychain)
+	}
+}
+
+func TestResolverFileFallback(t *testing.T) {
+	keyring.MockInit()
+
+	dir := t.TempDir()
+	fs := NewFileStore(filepath.Join(dir, "creds.yaml"))
+	_ = fs.Set("work", ModeApplication, "file-token")
+
+	resolver := NewResolver(&EnvStore{}, NewKeychainStore(), fs)
+	token, source, err := resolver.Get("work", ModeApplication)
+	if err != nil {
+		t.Fatalf("Get error: %v", err)
+	}
+	if token != "file-token" {
+		t.Errorf("token = %q, want %q", token, "file-token")
+	}
+	if source != SourceFile {
+		t.Errorf("source = %q, want %q", source, SourceFile)
+	}
+}
+
+func TestResolverNoneFound(t *testing.T) {
+	keyring.MockInit()
+	resolver := NewResolver(&EnvStore{}, NewKeychainStore(), nil)
+	_, _, err := resolver.Get("work", ModeApplication)
+	if err != ErrNotFound {
+		t.Errorf("err = %v, want ErrNotFound", err)
+	}
+}
