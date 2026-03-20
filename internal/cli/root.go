@@ -2,14 +2,18 @@ package cli
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
 var (
-	prettyFlag  bool
-	verboseFlag bool
+	prettyFlag    bool
+	verboseFlag   bool
+	profileFlag   string
+	baseURLFlag   string
+	accountIDFlag int
 )
 
 var rootCmd = &cobra.Command{
@@ -31,12 +35,18 @@ var rootCmd = &cobra.Command{
 				verboseFlag = true
 			}
 		}
+		if verboseFlag {
+			slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug})))
+		}
 	},
 }
 
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&prettyFlag, "pretty", false, "Indent JSON output with 2 spaces")
 	rootCmd.PersistentFlags().BoolVar(&verboseFlag, "verbose", false, "Enable diagnostic logging on stderr")
+	rootCmd.PersistentFlags().StringVar(&profileFlag, "profile", "", "Select named profile")
+	rootCmd.PersistentFlags().StringVar(&baseURLFlag, "base-url", "", "Override base URL")
+	rootCmd.PersistentFlags().IntVar(&accountIDFlag, "account-id", 0, "Override account ID")
 }
 
 // Execute runs the root command and returns an exit code.
