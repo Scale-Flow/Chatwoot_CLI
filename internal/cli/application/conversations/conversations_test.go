@@ -181,7 +181,15 @@ func TestConversationsAssignmentsCreate(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id": 1, "status": "open", "account_id": 1,
+			"id":                  2,
+			"account_id":         1,
+			"availability_status": "online",
+			"auto_offline":       true,
+			"confirmed":          true,
+			"email":              "agent@example.com",
+			"available_name":     "Claude",
+			"name":               "Claude",
+			"role":               "agent",
 		})
 	}))
 	defer srv.Close()
@@ -207,6 +215,13 @@ func TestConversationsAssignmentsCreate(t *testing.T) {
 	if resp["ok"] != true {
 		t.Errorf("ok = %v, want true", resp["ok"])
 	}
+	data := resp["data"].(map[string]any)
+	if data["name"] != "Claude" {
+		t.Errorf("name = %v, want Claude", data["name"])
+	}
+	if data["role"] != "agent" {
+		t.Errorf("role = %v, want agent", data["role"])
+	}
 }
 
 func TestConversationsLabelsSet(t *testing.T) {
@@ -216,7 +231,7 @@ func TestConversationsLabelsSet(t *testing.T) {
 			t.Errorf("method = %q, want POST", r.Method)
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
-		json.NewEncoder(w).Encode([]string{"bug", "urgent"})
+		json.NewEncoder(w).Encode(map[string][]string{"payload": {"bug", "urgent"}})
 	}))
 	defer srv.Close()
 

@@ -22,8 +22,8 @@ func TestListCustomFilters(t *testing.T) {
 			t.Errorf("filter_type = %q, want conversation", r.URL.Query().Get("filter_type"))
 		}
 		json.NewEncoder(w).Encode([]map[string]any{
-			{"id": 1, "name": "Open conversations", "type": "conversation"},
-			{"id": 2, "name": "VIP contacts", "type": "contact"},
+			{"id": 1, "name": "Open conversations", "filter_type": "conversation", "query": map[string]any{"status": "open"}},
+			{"id": 2, "name": "VIP contacts", "filter_type": "contact", "query": map[string]any{"status": "active"}},
 		})
 	}))
 	defer srv.Close()
@@ -44,6 +44,12 @@ func TestListCustomFilters(t *testing.T) {
 	if filters[1].ID != 2 {
 		t.Errorf("filters[1].ID = %d, want 2", filters[1].ID)
 	}
+	if filters[0].Type != "conversation" {
+		t.Errorf("filters[0].Type = %q, want conversation", filters[0].Type)
+	}
+	if filters[1].Type != "contact" {
+		t.Errorf("filters[1].Type = %q, want contact", filters[1].Type)
+	}
 }
 
 func TestCreateCustomFilter(t *testing.T) {
@@ -57,9 +63,10 @@ func TestCreateCustomFilter(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":   30,
-			"name": "Urgent open",
-			"type": "conversation",
+			"id":          30,
+			"name":        "Urgent open",
+			"filter_type": "conversation",
+			"query":       map[string]any{"status": "open"},
 		})
 	}))
 	defer srv.Close()
@@ -84,7 +91,10 @@ func TestCreateCustomFilter(t *testing.T) {
 	if gotBody["name"] != "Urgent open" {
 		t.Errorf("body name = %v, want Urgent open", gotBody["name"])
 	}
-	if gotBody["type"] != "conversation" {
-		t.Errorf("body type = %v, want conversation", gotBody["type"])
+	if gotBody["filter_type"] != "conversation" {
+		t.Errorf("body filter_type = %v, want conversation", gotBody["filter_type"])
+	}
+	if filter.Type != "conversation" {
+		t.Errorf("Type = %q, want conversation", filter.Type)
 	}
 }

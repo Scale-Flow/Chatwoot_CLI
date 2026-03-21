@@ -75,6 +75,21 @@ type AgentBot struct {
 	Name string `json:"name"`
 }
 
+// AssignmentResponse represents the API response from conversation assignment.
+// The API returns the assigned agent as a flat object, not a conversation.
+type AssignmentResponse struct {
+	ID                 int    `json:"id"`
+	Name               string `json:"name"`
+	AvailableName      string `json:"available_name,omitempty"`
+	Email              string `json:"email,omitempty"`
+	Role               string `json:"role,omitempty"`
+	AccountID          int    `json:"account_id,omitempty"`
+	AvailabilityStatus string `json:"availability_status,omitempty"`
+	AutoOffline        bool   `json:"auto_offline,omitempty"`
+	Confirmed          bool   `json:"confirmed,omitempty"`
+	Thumbnail          string `json:"thumbnail,omitempty"`
+}
+
 // StatusToggleResponse represents the API response from toggle_status.
 type StatusToggleResponse struct {
 	Success        bool    `json:"success"`
@@ -228,10 +243,12 @@ type CustomAttribute struct {
 
 // CustomFilter represents a saved filter query.
 type CustomFilter struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Query any    `json:"query"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Type      string `json:"filter_type"`
+	Query     any    `json:"query"`
+	CreatedAt string `json:"created_at,omitempty"`
+	UpdatedAt string `json:"updated_at,omitempty"`
 }
 
 // AccountInfo represents account details.
@@ -422,7 +439,7 @@ type UpdateCustomAttributeOpts struct {
 
 type CreateCustomFilterOpts struct {
 	Name  string `json:"name"`
-	Type  string `json:"type"`
+	Type  string `json:"filter_type"`
 	Query any    `json:"query"`
 }
 

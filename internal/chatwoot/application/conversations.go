@@ -177,7 +177,7 @@ func (c *Client) ToggleConversationStatus(ctx context.Context, id int, status st
 }
 
 // ToggleConversationPriority toggles a conversation's priority.
-// The API returns {"payload":{"success":true,"conversation_id":N,"current_priority":"..."}}.
+// The API returns an empty body with HTTP 200 on success.
 func (c *Client) ToggleConversationPriority(ctx context.Context, id int, priority string) (*PriorityToggleResponse, error) {
 	path := fmt.Sprintf("/api/v1/accounts/%d/conversations/%d/toggle_priority", c.accountID, id)
 	payload := map[string]string{"priority": priority}
@@ -189,17 +189,21 @@ func (c *Client) ToggleConversationPriority(ctx context.Context, id int, priorit
 	if err != nil {
 		return nil, err
 	}
-	var envelope struct {
-		Payload PriorityToggleResponse `json:"payload"`
-	}
-	if err := chatwoot.DecodeResponse(resp, &envelope); err != nil {
+	if err := chatwoot.DecodeResponse(resp, nil); err != nil {
 		return nil, err
 	}
-	return &envelope.Payload, nil
+	// The API returns an empty body on success, so we construct the
+	// response from the input parameters.
+	return &PriorityToggleResponse{
+		Success:         true,
+		ConversationID:  id,
+		CurrentPriority: priority,
+	}, nil
 }
 
 // AssignConversation assigns a conversation to an agent and/or team.
-func (c *Client) AssignConversation(ctx context.Context, id int, opts AssignOpts) (*Conversation, error) {
+// The API returns the assigned agent as a flat object, not a conversation.
+func (c *Client) AssignConversation(ctx context.Context, id int, opts AssignOpts) (*AssignmentResponse, error) {
 	path := fmt.Sprintf("/api/v1/accounts/%d/conversations/%d/assignments", c.accountID, id)
 	body, err := json.Marshal(opts)
 	if err != nil {
@@ -209,11 +213,11 @@ func (c *Client) AssignConversation(ctx context.Context, id int, opts AssignOpts
 	if err != nil {
 		return nil, err
 	}
-	var convo Conversation
-	if err := chatwoot.DecodeResponse(resp, &convo); err != nil {
+	var assignment AssignmentResponse
+	if err := chatwoot.DecodeResponse(resp, &assignment); err != nil {
 		return nil, err
 	}
-	return &convo, nil
+	return &assignment, nil
 }
 
 // ListConversationLabels returns the labels for a conversation.
@@ -223,11 +227,13 @@ func (c *Client) ListConversationLabels(ctx context.Context, id int) ([]string, 
 	if err != nil {
 		return nil, err
 	}
-	var labels []string
-	if err := chatwoot.DecodeResponse(resp, &labels); err != nil {
+	var envelope struct {
+		Payload []string `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &envelope); err != nil {
 		return nil, err
 	}
-	return labels, nil
+	return envelope.Payload, nil
 }
 
 // SetConversationLabels replaces all labels on a conversation.
@@ -242,9 +248,11 @@ func (c *Client) SetConversationLabels(ctx context.Context, id int, labels []str
 	if err != nil {
 		return nil, err
 	}
-	var result []string
-	if err := chatwoot.DecodeResponse(resp, &result); err != nil {
+	var envelope struct {
+		Payload []string `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &envelope); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return envelope.Payload, nil
 }

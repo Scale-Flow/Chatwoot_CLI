@@ -14,7 +14,7 @@ func TestCustomFiltersList(t *testing.T) {
 			t.Errorf("method = %q, want GET", r.Method)
 		}
 		json.NewEncoder(w).Encode([]map[string]any{
-			{"id": 1, "name": "Open bugs", "type": "conversation"},
+			{"id": 1, "name": "Open bugs", "filter_type": "conversation", "query": map[string]any{"conditions": []any{}}},
 		})
 	}))
 	defer srv.Close()
@@ -52,9 +52,10 @@ func TestCustomFiltersCreate(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":   1,
-			"name": "Open bugs",
-			"type": "conversation",
+			"id":          1,
+			"name":        "Open bugs",
+			"filter_type": "conversation",
+			"query":       map[string]any{"conditions": []any{}},
 		})
 	}))
 	defer srv.Close()
@@ -78,6 +79,9 @@ func TestCustomFiltersCreate(t *testing.T) {
 
 	if gotBody["name"] != "Open bugs" {
 		t.Errorf("body name = %v, want Open bugs", gotBody["name"])
+	}
+	if gotBody["filter_type"] != "conversation" {
+		t.Errorf("body filter_type = %v, want conversation", gotBody["filter_type"])
 	}
 
 	var resp map[string]any

@@ -52,11 +52,11 @@ func runAssignmentsCreate(cmd *cobra.Command, args []string) error {
 	}
 
 	ctx := context.Background()
-	convo, err := client.AssignConversation(ctx, id, opts)
+	assignment, err := client.AssignConversation(ctx, id, opts)
 	if err != nil {
 		return cmdutil.WriteError(cmd, contract.ErrCodeServer, err.Error())
 	}
 
-	resp := contract.Success(convo)
+	resp := contract.Success(assignment)
 	return contract.Write(cmd.OutOrStdout(), resp, cmdutil.Pretty(cmd))
 }

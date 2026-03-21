@@ -350,13 +350,8 @@ func TestToggleConversationPriority(t *testing.T) {
 			t.Errorf("path = %q", r.URL.Path)
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
-		json.NewEncoder(w).Encode(map[string]any{
-			"payload": map[string]any{
-				"success":          true,
-				"conversation_id":  10,
-				"current_priority": "urgent",
-			},
-		})
+		// Real API returns empty body with 200 status
+		w.WriteHeader(http.StatusOK)
 	}))
 	defer srv.Close()
 
@@ -394,8 +389,15 @@ func TestAssignConversation(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":     10,
-			"status": "open",
+			"id":                  2,
+			"account_id":         1,
+			"availability_status": "online",
+			"auto_offline":       true,
+			"confirmed":          true,
+			"email":              "agent@example.com",
+			"available_name":     "Claude",
+			"name":               "Claude",
+			"role":               "agent",
 		})
 	}))
 	defer srv.Close()
@@ -404,7 +406,7 @@ func TestAssignConversation(t *testing.T) {
 	client := NewClient(transport, 1)
 
 	agentID := 7
-	convo, err := client.AssignConversation(context.Background(), 10, AssignOpts{
+	assignment, err := client.AssignConversation(context.Background(), 10, AssignOpts{
 		AgentID: &agentID,
 	})
 	if err != nil {
@@ -416,8 +418,20 @@ func TestAssignConversation(t *testing.T) {
 	if gotBody["assignee_id"] != float64(7) {
 		t.Errorf("assignee_id = %v, want 7", gotBody["assignee_id"])
 	}
-	if convo.ID != 10 {
-		t.Errorf("ID = %d, want 10", convo.ID)
+	if assignment.ID != 2 {
+		t.Errorf("ID = %d, want 2", assignment.ID)
+	}
+	if assignment.Name != "Claude" {
+		t.Errorf("Name = %q, want Claude", assignment.Name)
+	}
+	if assignment.Email != "agent@example.com" {
+		t.Errorf("Email = %q, want agent@example.com", assignment.Email)
+	}
+	if assignment.Role != "agent" {
+		t.Errorf("Role = %q, want agent", assignment.Role)
+	}
+	if assignment.AvailabilityStatus != "online" {
+		t.Errorf("AvailabilityStatus = %q, want online", assignment.AvailabilityStatus)
 	}
 }
 
@@ -429,7 +443,7 @@ func TestListConversationLabels(t *testing.T) {
 		if r.Method != "GET" {
 			t.Errorf("method = %q, want GET", r.Method)
 		}
-		json.NewEncoder(w).Encode([]string{"bug", "urgent"})
+		json.NewEncoder(w).Encode(map[string][]string{"payload": {"bug", "urgent"}})
 	}))
 	defer srv.Close()
 
@@ -457,7 +471,7 @@ func TestSetConversationLabels(t *testing.T) {
 			t.Errorf("path = %q", r.URL.Path)
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
-		json.NewEncoder(w).Encode([]string{"feature", "high-priority"})
+		json.NewEncoder(w).Encode(map[string][]string{"payload": {"feature", "high-priority"}})
 	}))
 	defer srv.Close()
 
