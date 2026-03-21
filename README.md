@@ -142,6 +142,29 @@ chatwoot completion zsh > "${fpath[1]}/_chatwoot"
 chatwoot completion fish > ~/.config/fish/completions/chatwoot.fish
 ```
 
+## Claude Code skill
+
+This repo ships a [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code/skills) that teaches Claude the CLI's command syntax, flag names, JSON envelope handling, and common workflows. With the skill loaded, Claude uses the right commands on the first try instead of discovering them through `--help`.
+
+### Install the skill
+
+Copy the skill into your Claude Code skills directory:
+
+```bash
+mkdir -p ~/.claude/skills/chatwoot-cli
+cp .claude/skills/chatwoot-cli/SKILL.md ~/.claude/skills/chatwoot-cli/SKILL.md
+```
+
+The skill triggers automatically when you mention Chatwoot in a CLI or automation context.
+
+### What the skill provides
+
+- Exact flag names for every command, verified against the binary
+- JSON envelope parsing patterns (`ok`/`data`/`error`)
+- Auth setup for all three API families
+- Pagination with `--page` and `--all`
+- Common multi-step workflows: conversation reply, contact lookup, report generation
+
 ## Documentation
 
 - [Command reference](docs/commands.md)
