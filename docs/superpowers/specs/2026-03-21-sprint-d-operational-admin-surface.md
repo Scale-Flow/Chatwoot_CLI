@@ -113,6 +113,12 @@ Note: Most report endpoints return varied response shapes. Using `any` as
 return type — the CLI passes the raw decoded JSON through to the contract
 envelope. `ReportSummary` is typed because it has a known stable shape.
 
+`GetConversationMetrics` and `GetAgentConversationMetrics` map to two
+variants of the same base path. The CLI `reports conversations` command
+dispatches to one or the other based on `--type`: `account` uses
+`GetConversationMetrics`, `agent` uses `GetAgentConversationMetrics`.
+This means 12 API methods map to 11 CLI commands.
+
 `ReportOpts` query parameters:
 
 | Field | Type | Description |
@@ -307,10 +313,13 @@ type AccountInfo struct {
 
 // AccountAgentBot represents an account-scoped agent bot.
 type AccountAgentBot struct {
-    ID        int    `json:"id"`
-    Name      string `json:"name"`
-    BotType   string `json:"bot_type,omitempty"`
-    BotConfig any    `json:"bot_config,omitempty"`
+    ID          int    `json:"id"`
+    Name        string `json:"name"`
+    Description string `json:"description,omitempty"`
+    BotType     string `json:"bot_type,omitempty"`
+    OutgoingURL string `json:"outgoing_url,omitempty"`
+    BotConfig   any    `json:"bot_config,omitempty"`
+    AccountID   int    `json:"account_id,omitempty"`
 }
 
 // AuditLog represents an audit log entry.
@@ -499,21 +508,25 @@ type UpdateAccountOpts struct {
 }
 
 type CreateAgentBotOpts struct {
-    Name      string `json:"name"`
-    BotType   string `json:"bot_type,omitempty"`
-    BotConfig any    `json:"bot_config,omitempty"`
+    Name        string `json:"name"`
+    Description string `json:"description,omitempty"`
+    BotType     string `json:"bot_type,omitempty"`
+    OutgoingURL string `json:"outgoing_url,omitempty"`
+    BotConfig   any    `json:"bot_config,omitempty"`
 }
 
 type UpdateAgentBotOpts struct {
-    Name      *string `json:"name,omitempty"`
-    BotType   *string `json:"bot_type,omitempty"`
-    BotConfig any     `json:"bot_config,omitempty"`
+    Name        *string `json:"name,omitempty"`
+    Description *string `json:"description,omitempty"`
+    BotType     *string `json:"bot_type,omitempty"`
+    OutgoingURL *string `json:"outgoing_url,omitempty"`
+    BotConfig   any     `json:"bot_config,omitempty"`
 }
 
 type CreateIntegrationHookOpts struct {
-    AppID    int `json:"app_id"`
-    InboxID  int `json:"inbox_id,omitempty"`
-    Settings any `json:"settings,omitempty"`
+    AppID    string `json:"app_id"`
+    InboxID  int    `json:"inbox_id,omitempty"`
+    Settings any    `json:"settings,omitempty"`
 }
 
 type UpdateIntegrationHookOpts struct {
@@ -612,20 +625,26 @@ internal/cli/application/integrations/
 ### Help Center (portal hierarchy)
 
 ```
-internal/cli/application/help-center/
-  help_center.go     — Cmd with portalsCmd, articlesCmd, categoriesCmd
+internal/cli/application/helpcenter/
+  helpcenter.go      — Cmd with portalsCmd, articlesCmd, categoriesCmd
   portals.go         — portals list/create/update
   articles.go        — articles create --portal-id --title
   categories.go      — categories create --portal-id --name
 ```
 
+Note: Go package name is `helpcenter` (no hyphen). The CLI command use string
+is `help-center` (with hyphen).
+
 ### Audit Logs (read-only list)
 
 ```
-internal/cli/application/audit-logs/
-  audit_logs.go      — Cmd
+internal/cli/application/auditlogs/
+  auditlogs.go       — Cmd (Use: "audit-logs")
   list.go            — audit-logs list (with pagination)
 ```
+
+Note: Go package name is `auditlogs` (no hyphen). The CLI command use string
+is `audit-logs` (with hyphen).
 
 ### Flag Conventions
 
@@ -653,7 +672,7 @@ Follow Sprint C conventions. Additional flags for Sprint D:
 | `--until` | string | reports commands | Date range end |
 | `--metric` | string | reports account | Metric to query |
 | `--portal-id` | int | articles/categories create | Parent portal |
-| `--app-id` | int | integration hooks create | Integration app ID |
+| `--app-id` | string | integration hooks create | Integration app ID (e.g. "slack") |
 | `--hook-id` | int | integration hooks update/delete | Hook ID |
 | `--bot-type` | string | agent-bots create | Bot classification |
 | `--bot-config` | string | agent-bots create | JSON bot configuration |
