@@ -14,6 +14,9 @@ import (
 // ListConversations returns a page of conversations for the account.
 func (c *Client) ListConversations(ctx context.Context, opts ListConversationsOpts) ([]Conversation, *contract.Pagination, error) {
 	path := fmt.Sprintf("/api/v1/accounts/%d/conversations?page=%d", c.accountID, opts.Page)
+	if opts.PerPage != 0 {
+		path += fmt.Sprintf("&per_page=%d", opts.PerPage)
+	}
 	if opts.Status != "" {
 		path += "&status=" + opts.Status
 	}

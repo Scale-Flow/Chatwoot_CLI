@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	chatwoot "github.com/chatwoot/chatwoot-cli/internal/chatwoot"
 	"github.com/chatwoot/chatwoot-cli/internal/contract"
@@ -109,7 +110,7 @@ func (c *Client) DeleteContact(ctx context.Context, id int) error {
 
 // SearchContacts searches contacts by query string.
 func (c *Client) SearchContacts(ctx context.Context, query string, page int) ([]Contact, *contract.Pagination, error) {
-	path := fmt.Sprintf("/api/v1/accounts/%d/contacts/search?q=%s&page=%d", c.accountID, query, page)
+	path := fmt.Sprintf("/api/v1/accounts/%d/contacts/search?q=%s&page=%d", c.accountID, url.QueryEscape(query), page)
 
 	resp, err := c.transport.DoWithRetry(ctx, http.MethodGet, path, nil)
 	if err != nil {
