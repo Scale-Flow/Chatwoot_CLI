@@ -17,12 +17,14 @@ func (c *Client) ListWebhooks(ctx context.Context) ([]Webhook, error) {
 		return nil, err
 	}
 	var body struct {
-		Payload []Webhook `json:"payload"`
+		Payload struct {
+			Webhooks []Webhook `json:"webhooks"`
+		} `json:"payload"`
 	}
 	if err := chatwoot.DecodeResponse(resp, &body); err != nil {
 		return nil, err
 	}
-	return body.Payload, nil
+	return body.Payload.Webhooks, nil
 }
 
 // CreateWebhook creates a new webhook subscription.
@@ -36,11 +38,15 @@ func (c *Client) CreateWebhook(ctx context.Context, opts CreateWebhookOpts) (*We
 	if err != nil {
 		return nil, err
 	}
-	var webhook Webhook
-	if err := chatwoot.DecodeResponse(resp, &webhook); err != nil {
+	var body struct {
+		Payload struct {
+			Webhook Webhook `json:"webhook"`
+		} `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &body); err != nil {
 		return nil, err
 	}
-	return &webhook, nil
+	return &body.Payload.Webhook, nil
 }
 
 // UpdateWebhook updates an existing webhook.
@@ -54,11 +60,15 @@ func (c *Client) UpdateWebhook(ctx context.Context, webhookID int, opts UpdateWe
 	if err != nil {
 		return nil, err
 	}
-	var webhook Webhook
-	if err := chatwoot.DecodeResponse(resp, &webhook); err != nil {
+	var body struct {
+		Payload struct {
+			Webhook Webhook `json:"webhook"`
+		} `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &body); err != nil {
 		return nil, err
 	}
-	return &webhook, nil
+	return &body.Payload.Webhook, nil
 }
 
 // DeleteWebhook deletes a webhook by ID.

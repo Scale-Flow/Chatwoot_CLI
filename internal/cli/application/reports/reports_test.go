@@ -25,8 +25,13 @@ func TestReportsSummary(t *testing.T) {
 			t.Errorf("until query param missing")
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"avg_first_response_time": "5m",
+			"avg_first_response_time": 159.0,
+			"avg_resolution_time":     10572.05,
 			"conversations_count":     100,
+			"incoming_messages_count": 50,
+			"outgoing_messages_count": 40,
+			"resolutions_count":       30,
+			"reply_time":              26.0,
 		})
 	}))
 	defer srv.Close()

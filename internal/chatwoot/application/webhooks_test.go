@@ -19,8 +19,10 @@ func TestListWebhooks(t *testing.T) {
 			t.Errorf("path = %q, want /api/v1/accounts/1/webhooks", r.URL.Path)
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"payload": []map[string]any{
-				{"id": 1, "url": "https://example.com/hook", "subscriptions": []string{"message_created"}},
+			"payload": map[string]any{
+				"webhooks": []map[string]any{
+					{"id": 1, "url": "https://example.com/hook", "subscriptions": []string{"message_created"}},
+				},
 			},
 		})
 	}))
@@ -58,9 +60,13 @@ func TestCreateWebhook(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":            5,
-			"url":           "https://example.com/hook",
-			"subscriptions": []string{"message_created", "conversation_created"},
+			"payload": map[string]any{
+				"webhook": map[string]any{
+					"id":            5,
+					"url":           "https://example.com/hook",
+					"subscriptions": []string{"message_created", "conversation_created"},
+				},
+			},
 		})
 	}))
 	defer srv.Close()

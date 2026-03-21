@@ -14,8 +14,10 @@ func TestWebhooksList(t *testing.T) {
 			t.Errorf("method = %q, want GET", r.Method)
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"payload": []map[string]any{
-				{"id": 1, "url": "https://example.com", "subscriptions": []string{"message_created"}},
+			"payload": map[string]any{
+				"webhooks": []map[string]any{
+					{"id": 1, "url": "https://example.com", "subscriptions": []string{"message_created"}},
+				},
 			},
 		})
 	}))
@@ -54,9 +56,13 @@ func TestWebhooksCreate(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":            1,
-			"url":           "https://example.com",
-			"subscriptions": []string{"message_created", "conversation_created"},
+			"payload": map[string]any{
+				"webhook": map[string]any{
+					"id":            1,
+					"url":           "https://example.com",
+					"subscriptions": []string{"message_created", "conversation_created"},
+				},
+			},
 		})
 	}))
 	defer srv.Close()

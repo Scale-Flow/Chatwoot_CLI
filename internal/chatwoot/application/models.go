@@ -331,14 +331,16 @@ type Category struct {
 }
 
 // ReportSummary holds account report summary data.
+// The Chatwoot API returns time fields as floats (seconds), not strings.
 type ReportSummary struct {
-	AvgFirstResponseTime  string `json:"avg_first_response_time"`
-	AvgResolutionTime     string `json:"avg_resolution_time"`
-	ConversationsCount    int    `json:"conversations_count"`
-	IncomingMessagesCount int    `json:"incoming_messages_count"`
-	OutgoingMessagesCount int    `json:"outgoing_messages_count"`
-	ResolutionsCount      int    `json:"resolutions_count"`
-	Previous              any    `json:"previous,omitempty"`
+	AvgFirstResponseTime  float64         `json:"avg_first_response_time"`
+	AvgResolutionTime     float64         `json:"avg_resolution_time"`
+	ConversationsCount    int             `json:"conversations_count"`
+	IncomingMessagesCount int             `json:"incoming_messages_count"`
+	OutgoingMessagesCount int             `json:"outgoing_messages_count"`
+	ResolutionsCount      int             `json:"resolutions_count"`
+	ReplyTime             float64         `json:"reply_time"`
+	Previous              *ReportSummary  `json:"previous,omitempty"`
 }
 
 // --- Sprint D Opts types ---

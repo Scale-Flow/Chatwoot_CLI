@@ -64,12 +64,22 @@ func TestGetReportSummary(t *testing.T) {
 			t.Errorf("path = %q, want /api/v2/accounts/1/reports/summary", r.URL.Path)
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"avg_first_response_time":  "00:05:00",
-			"avg_resolution_time":      "01:30:00",
+			"avg_first_response_time":  159.0,
+			"avg_resolution_time":      10572.05,
 			"conversations_count":      25,
 			"incoming_messages_count":  100,
 			"outgoing_messages_count":  90,
 			"resolutions_count":        20,
+			"reply_time":               26.0,
+			"previous": map[string]any{
+				"avg_first_response_time":  0.0,
+				"avg_resolution_time":      0.0,
+				"conversations_count":      0,
+				"incoming_messages_count":  0,
+				"outgoing_messages_count":  0,
+				"resolutions_count":        0,
+				"reply_time":               0.0,
+			},
 		})
 	}))
 	defer srv.Close()
@@ -88,11 +98,11 @@ func TestGetReportSummary(t *testing.T) {
 	if summary == nil {
 		t.Fatal("summary is nil")
 	}
-	if summary.AvgFirstResponseTime != "00:05:00" {
-		t.Errorf("AvgFirstResponseTime = %q, want 00:05:00", summary.AvgFirstResponseTime)
+	if summary.AvgFirstResponseTime != 159.0 {
+		t.Errorf("AvgFirstResponseTime = %f, want 159.0", summary.AvgFirstResponseTime)
 	}
-	if summary.AvgResolutionTime != "01:30:00" {
-		t.Errorf("AvgResolutionTime = %q, want 01:30:00", summary.AvgResolutionTime)
+	if summary.AvgResolutionTime != 10572.05 {
+		t.Errorf("AvgResolutionTime = %f, want 10572.05", summary.AvgResolutionTime)
 	}
 	if summary.ConversationsCount != 25 {
 		t.Errorf("ConversationsCount = %d, want 25", summary.ConversationsCount)
@@ -105,6 +115,15 @@ func TestGetReportSummary(t *testing.T) {
 	}
 	if summary.ResolutionsCount != 20 {
 		t.Errorf("ResolutionsCount = %d, want 20", summary.ResolutionsCount)
+	}
+	if summary.ReplyTime != 26.0 {
+		t.Errorf("ReplyTime = %f, want 26.0", summary.ReplyTime)
+	}
+	if summary.Previous == nil {
+		t.Fatal("Previous is nil, want non-nil")
+	}
+	if summary.Previous.ConversationsCount != 0 {
+		t.Errorf("Previous.ConversationsCount = %d, want 0", summary.Previous.ConversationsCount)
 	}
 }
 
