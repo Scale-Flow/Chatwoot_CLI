@@ -7,6 +7,7 @@ import (
 
 	cliapp "github.com/chatwoot/chatwoot-cli/internal/cli/application"
 	cliauth "github.com/chatwoot/chatwoot-cli/internal/cli/auth"
+	cliplatform "github.com/chatwoot/chatwoot-cli/internal/cli/platform"
 	"github.com/spf13/cobra"
 )
 
@@ -51,6 +52,7 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&accountIDFlag, "account-id", 0, "Override account ID")
 	rootCmd.AddCommand(cliauth.Cmd)
 	rootCmd.AddCommand(cliapp.Cmd)
+	rootCmd.AddCommand(cliplatform.Cmd)
 }
 
 // Execute runs the root command and returns an exit code.
