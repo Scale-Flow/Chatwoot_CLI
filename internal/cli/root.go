@@ -7,6 +7,7 @@ import (
 
 	cliapp "github.com/chatwoot/chatwoot-cli/internal/cli/application"
 	cliauth "github.com/chatwoot/chatwoot-cli/internal/cli/auth"
+	cliclient "github.com/chatwoot/chatwoot-cli/internal/cli/client"
 	cliplatform "github.com/chatwoot/chatwoot-cli/internal/cli/platform"
 	"github.com/spf13/cobra"
 )
@@ -53,6 +54,7 @@ func init() {
 	rootCmd.AddCommand(cliauth.Cmd)
 	rootCmd.AddCommand(cliapp.Cmd)
 	rootCmd.AddCommand(cliplatform.Cmd)
+	rootCmd.AddCommand(cliclient.Cmd)
 }
 
 // Execute runs the root command and returns an exit code.
