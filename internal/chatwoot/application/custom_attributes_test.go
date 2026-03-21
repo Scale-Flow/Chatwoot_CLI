@@ -18,11 +18,9 @@ func TestListCustomAttributes(t *testing.T) {
 		if r.URL.Path != "/api/v1/accounts/1/custom_attribute_definitions" {
 			t.Errorf("path = %q, want /api/v1/accounts/1/custom_attribute_definitions", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode(map[string]any{
-			"data": []map[string]any{
-				{"id": 1, "attribute_display_name": "Priority", "attribute_key": "priority", "attribute_model": "conversation_attribute"},
-				{"id": 2, "attribute_display_name": "Region", "attribute_key": "region", "attribute_model": "contact_attribute"},
-			},
+		json.NewEncoder(w).Encode([]map[string]any{
+			{"id": 1, "attribute_display_name": "Priority", "attribute_key": "priority", "attribute_model": "conversation_attribute"},
+			{"id": 2, "attribute_display_name": "Region", "attribute_key": "region", "attribute_model": "contact_attribute"},
 		})
 	}))
 	defer srv.Close()

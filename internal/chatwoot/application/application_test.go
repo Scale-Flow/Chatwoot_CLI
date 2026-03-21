@@ -307,8 +307,12 @@ func TestToggleConversationStatus(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":     10,
-			"status": "resolved",
+			"payload": map[string]any{
+				"success":         true,
+				"conversation_id": 10,
+				"current_status":  "resolved",
+				"snoozed_until":   nil,
+			},
 		})
 	}))
 	defer srv.Close()
@@ -316,7 +320,7 @@ func TestToggleConversationStatus(t *testing.T) {
 	transport := chatwoot.NewClient(srv.URL, "sk-test", "api_access_token")
 	client := NewClient(transport, 1)
 
-	convo, err := client.ToggleConversationStatus(context.Background(), 10, "resolved")
+	result, err := client.ToggleConversationStatus(context.Background(), 10, "resolved")
 	if err != nil {
 		t.Fatalf("ToggleConversationStatus error: %v", err)
 	}
@@ -326,8 +330,14 @@ func TestToggleConversationStatus(t *testing.T) {
 	if gotBody["status"] != "resolved" {
 		t.Errorf("body status = %v, want resolved", gotBody["status"])
 	}
-	if convo.Status != "resolved" {
-		t.Errorf("Status = %q, want resolved", convo.Status)
+	if !result.Success {
+		t.Errorf("Success = false, want true")
+	}
+	if result.ConversationID != 10 {
+		t.Errorf("ConversationID = %d, want 10", result.ConversationID)
+	}
+	if result.CurrentStatus != "resolved" {
+		t.Errorf("CurrentStatus = %q, want resolved", result.CurrentStatus)
 	}
 }
 
@@ -341,8 +351,11 @@ func TestToggleConversationPriority(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":       10,
-			"priority": "urgent",
+			"payload": map[string]any{
+				"success":          true,
+				"conversation_id":  10,
+				"current_priority": "urgent",
+			},
 		})
 	}))
 	defer srv.Close()
@@ -350,7 +363,7 @@ func TestToggleConversationPriority(t *testing.T) {
 	transport := chatwoot.NewClient(srv.URL, "sk-test", "api_access_token")
 	client := NewClient(transport, 1)
 
-	convo, err := client.ToggleConversationPriority(context.Background(), 10, "urgent")
+	result, err := client.ToggleConversationPriority(context.Background(), 10, "urgent")
 	if err != nil {
 		t.Fatalf("ToggleConversationPriority error: %v", err)
 	}
@@ -360,8 +373,14 @@ func TestToggleConversationPriority(t *testing.T) {
 	if gotBody["priority"] != "urgent" {
 		t.Errorf("body priority = %v, want urgent", gotBody["priority"])
 	}
-	if convo.Priority != "urgent" {
-		t.Errorf("Priority = %q, want urgent", convo.Priority)
+	if !result.Success {
+		t.Errorf("Success = false, want true")
+	}
+	if result.ConversationID != 10 {
+		t.Errorf("ConversationID = %d, want 10", result.ConversationID)
+	}
+	if result.CurrentPriority != "urgent" {
+		t.Errorf("CurrentPriority = %q, want urgent", result.CurrentPriority)
 	}
 }
 

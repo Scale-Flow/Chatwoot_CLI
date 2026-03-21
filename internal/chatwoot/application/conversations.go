@@ -33,8 +33,8 @@ func (c *Client) ListConversations(ctx context.Context, opts ListConversationsOp
 		Data struct {
 			Payload []Conversation `json:"payload"`
 			Meta    struct {
-				AllCount    int `json:"all_count"`
-				CurrentPage int `json:"current_page"`
+				AllCount    int             `json:"all_count"`
+				CurrentPage json.RawMessage `json:"current_page"`
 			} `json:"meta"`
 		} `json:"data"`
 	}
@@ -46,8 +46,8 @@ func (c *Client) ListConversations(ctx context.Context, opts ListConversationsOp
 		Page:       opts.Page,
 		TotalCount: body.Data.Meta.AllCount,
 	}
-	if body.Data.Meta.CurrentPage != 0 {
-		pg.Page = body.Data.Meta.CurrentPage
+	if cp := parseFlexInt(body.Data.Meta.CurrentPage); cp != 0 {
+		pg.Page = cp
 	}
 
 	return body.Data.Payload, pg, nil
@@ -120,8 +120,8 @@ func (c *Client) FilterConversations(ctx context.Context, opts FilterConversatio
 		Data struct {
 			Payload []Conversation `json:"payload"`
 			Meta    struct {
-				AllCount    int `json:"all_count"`
-				CurrentPage int `json:"current_page"`
+				AllCount    int             `json:"all_count"`
+				CurrentPage json.RawMessage `json:"current_page"`
 			} `json:"meta"`
 		} `json:"data"`
 	}
@@ -133,8 +133,8 @@ func (c *Client) FilterConversations(ctx context.Context, opts FilterConversatio
 		Page:       opts.Page,
 		TotalCount: respBody.Data.Meta.AllCount,
 	}
-	if respBody.Data.Meta.CurrentPage != 0 {
-		pg.Page = respBody.Data.Meta.CurrentPage
+	if cp := parseFlexInt(respBody.Data.Meta.CurrentPage); cp != 0 {
+		pg.Page = cp
 	}
 
 	return respBody.Data.Payload, pg, nil
@@ -155,7 +155,8 @@ func (c *Client) GetConversationMeta(ctx context.Context) (*ConversationMeta, er
 }
 
 // ToggleConversationStatus toggles a conversation's status.
-func (c *Client) ToggleConversationStatus(ctx context.Context, id int, status string) (*Conversation, error) {
+// The API returns {"payload":{"success":true,"conversation_id":N,"current_status":"...","snoozed_until":null}}.
+func (c *Client) ToggleConversationStatus(ctx context.Context, id int, status string) (*StatusToggleResponse, error) {
 	path := fmt.Sprintf("/api/v1/accounts/%d/conversations/%d/toggle_status", c.accountID, id)
 	payload := map[string]string{"status": status}
 	body, err := json.Marshal(payload)
@@ -166,15 +167,18 @@ func (c *Client) ToggleConversationStatus(ctx context.Context, id int, status st
 	if err != nil {
 		return nil, err
 	}
-	var convo Conversation
-	if err := chatwoot.DecodeResponse(resp, &convo); err != nil {
+	var envelope struct {
+		Payload StatusToggleResponse `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &envelope); err != nil {
 		return nil, err
 	}
-	return &convo, nil
+	return &envelope.Payload, nil
 }
 
 // ToggleConversationPriority toggles a conversation's priority.
-func (c *Client) ToggleConversationPriority(ctx context.Context, id int, priority string) (*Conversation, error) {
+// The API returns {"payload":{"success":true,"conversation_id":N,"current_priority":"..."}}.
+func (c *Client) ToggleConversationPriority(ctx context.Context, id int, priority string) (*PriorityToggleResponse, error) {
 	path := fmt.Sprintf("/api/v1/accounts/%d/conversations/%d/toggle_priority", c.accountID, id)
 	payload := map[string]string{"priority": priority}
 	body, err := json.Marshal(payload)
@@ -185,11 +189,13 @@ func (c *Client) ToggleConversationPriority(ctx context.Context, id int, priorit
 	if err != nil {
 		return nil, err
 	}
-	var convo Conversation
-	if err := chatwoot.DecodeResponse(resp, &convo); err != nil {
+	var envelope struct {
+		Payload PriorityToggleResponse `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &envelope); err != nil {
 		return nil, err
 	}
-	return &convo, nil
+	return &envelope.Payload, nil
 }
 
 // AssignConversation assigns a conversation to an agent and/or team.

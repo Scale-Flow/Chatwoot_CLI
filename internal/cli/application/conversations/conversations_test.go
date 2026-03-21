@@ -133,7 +133,12 @@ func TestConversationsToggleStatus(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id": 1, "status": "resolved", "account_id": 1,
+			"payload": map[string]any{
+				"success":         true,
+				"conversation_id": 1,
+				"current_status":  "resolved",
+				"snoozed_until":   nil,
+			},
 		})
 	}))
 	defer srv.Close()
@@ -158,6 +163,13 @@ func TestConversationsToggleStatus(t *testing.T) {
 	json.Unmarshal(stdout.Bytes(), &resp)
 	if resp["ok"] != true {
 		t.Errorf("ok = %v, want true", resp["ok"])
+	}
+	data := resp["data"].(map[string]any)
+	if data["current_status"] != "resolved" {
+		t.Errorf("current_status = %v, want resolved", data["current_status"])
+	}
+	if data["conversation_id"] != float64(1) {
+		t.Errorf("conversation_id = %v, want 1", data["conversation_id"])
 	}
 }
 

@@ -43,11 +43,11 @@ func runTogglePriority(cmd *cobra.Command, args []string) error {
 	priority, _ := cmd.Flags().GetString("priority")
 	ctx := context.Background()
 
-	convo, err := client.ToggleConversationPriority(ctx, id, priority)
+	result, err := client.ToggleConversationPriority(ctx, id, priority)
 	if err != nil {
 		return cmdutil.WriteError(cmd, contract.ErrCodeServer, err.Error())
 	}
 
-	resp := contract.Success(convo)
+	resp := contract.Success(result)
 	return contract.Write(cmd.OutOrStdout(), resp, cmdutil.Pretty(cmd))
 }

@@ -22,15 +22,13 @@ func TestListContacts(t *testing.T) {
 			t.Errorf("page = %q, want 1", r.URL.Query().Get("page"))
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"data": map[string]any{
-				"payload": []map[string]any{
-					{"id": 1, "name": "Alice", "email": "alice@test.com"},
-					{"id": 2, "name": "Bob", "email": "bob@test.com"},
-				},
-				"meta": map[string]any{
-					"count":        50,
-					"current_page": 1,
-				},
+			"payload": []map[string]any{
+				{"id": 1, "name": "Alice", "email": "alice@test.com"},
+				{"id": 2, "name": "Bob", "email": "bob@test.com"},
+			},
+			"meta": map[string]any{
+				"count":        50,
+				"current_page": 1,
 			},
 		})
 	}))
@@ -69,9 +67,11 @@ func TestGetContact(t *testing.T) {
 			t.Errorf("path = %q, want /api/v1/accounts/1/contacts/42", r.URL.Path)
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":    42,
-			"name":  "Alice",
-			"email": "alice@test.com",
+			"payload": map[string]any{
+				"id":    42,
+				"name":  "Alice",
+				"email": "alice@test.com",
+			},
 		})
 	}))
 	defer srv.Close()
@@ -102,9 +102,11 @@ func TestCreateContact(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":    10,
-			"name":  "New Contact",
-			"email": "new@test.com",
+			"payload": map[string]any{
+				"id":    10,
+				"name":  "New Contact",
+				"email": "new@test.com",
+			},
 		})
 	}))
 	defer srv.Close()
@@ -142,8 +144,10 @@ func TestUpdateContact(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"id":   5,
-			"name": "Updated Name",
+			"payload": map[string]any{
+				"id":   5,
+				"name": "Updated Name",
+			},
 		})
 	}))
 	defer srv.Close()
@@ -200,14 +204,12 @@ func TestSearchContacts(t *testing.T) {
 			t.Errorf("page = %q, want 1", r.URL.Query().Get("page"))
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"data": map[string]any{
-				"payload": []map[string]any{
-					{"id": 1, "name": "Alice"},
-				},
-				"meta": map[string]any{
-					"count":        1,
-					"current_page": 1,
-				},
+			"payload": []map[string]any{
+				{"id": 1, "name": "Alice"},
+			},
+			"meta": map[string]any{
+				"count":        1,
+				"current_page": 1,
 			},
 		})
 	}))
@@ -242,14 +244,12 @@ func TestFilterContacts(t *testing.T) {
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
 		json.NewEncoder(w).Encode(map[string]any{
-			"data": map[string]any{
-				"payload": []map[string]any{
-					{"id": 3, "name": "Charlie"},
-				},
-				"meta": map[string]any{
-					"count":        1,
-					"current_page": 1,
-				},
+			"payload": []map[string]any{
+				{"id": 3, "name": "Charlie"},
+			},
+			"meta": map[string]any{
+				"count":        1,
+				"current_page": 1,
 			},
 		})
 	}))
@@ -324,7 +324,7 @@ func TestListContactLabels(t *testing.T) {
 		if r.URL.Path != "/api/v1/accounts/1/contacts/5/labels" {
 			t.Errorf("path = %q, want /api/v1/accounts/1/contacts/5/labels", r.URL.Path)
 		}
-		json.NewEncoder(w).Encode([]string{"vip", "enterprise"})
+		json.NewEncoder(w).Encode(map[string]any{"payload": []string{"vip", "enterprise"}})
 	}))
 	defer srv.Close()
 
@@ -353,7 +353,7 @@ func TestSetContactLabels(t *testing.T) {
 			t.Errorf("path = %q, want /api/v1/accounts/1/contacts/5/labels", r.URL.Path)
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
-		json.NewEncoder(w).Encode([]string{"vip", "premium"})
+		json.NewEncoder(w).Encode(map[string]any{"payload": []string{"vip", "premium"}})
 	}))
 	defer srv.Close()
 

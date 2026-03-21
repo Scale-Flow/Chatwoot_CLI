@@ -16,13 +16,11 @@ func (c *Client) ListCustomAttributes(ctx context.Context) ([]CustomAttribute, e
 	if err != nil {
 		return nil, err
 	}
-	var body struct {
-		Data []CustomAttribute `json:"data"`
-	}
-	if err := chatwoot.DecodeResponse(resp, &body); err != nil {
+	var attrs []CustomAttribute
+	if err := chatwoot.DecodeResponse(resp, &attrs); err != nil {
 		return nil, err
 	}
-	return body.Data, nil
+	return attrs, nil
 }
 
 // GetCustomAttribute returns a single custom attribute definition by ID.

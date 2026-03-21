@@ -7,10 +7,29 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	chatwoot "github.com/chatwoot/chatwoot-cli/internal/chatwoot"
 	"github.com/chatwoot/chatwoot-cli/internal/contract"
 )
+
+// parseFlexInt handles JSON values that may be a number or a quoted string.
+func parseFlexInt(raw json.RawMessage) int {
+	if len(raw) == 0 {
+		return 0
+	}
+	var n int
+	if json.Unmarshal(raw, &n) == nil {
+		return n
+	}
+	var s string
+	if json.Unmarshal(raw, &s) == nil {
+		if v, err := strconv.Atoi(s); err == nil {
+			return v
+		}
+	}
+	return 0
+}
 
 // ListContacts returns a page of contacts for the account.
 func (c *Client) ListContacts(ctx context.Context, opts ListContactsOpts) ([]Contact, *contract.Pagination, error) {
@@ -25,13 +44,11 @@ func (c *Client) ListContacts(ctx context.Context, opts ListContactsOpts) ([]Con
 	}
 
 	var body struct {
-		Data struct {
-			Payload []Contact `json:"payload"`
-			Meta    struct {
-				Count       int `json:"count"`
-				CurrentPage int `json:"current_page"`
-			} `json:"meta"`
-		} `json:"data"`
+		Payload []Contact `json:"payload"`
+		Meta    struct {
+			Count       int             `json:"count"`
+			CurrentPage json.RawMessage `json:"current_page"`
+		} `json:"meta"`
 	}
 	if err := chatwoot.DecodeResponse(resp, &body); err != nil {
 		return nil, nil, err
@@ -39,13 +56,13 @@ func (c *Client) ListContacts(ctx context.Context, opts ListContactsOpts) ([]Con
 
 	pg := &contract.Pagination{
 		Page:       opts.Page,
-		TotalCount: body.Data.Meta.Count,
+		TotalCount: body.Meta.Count,
 	}
-	if body.Data.Meta.CurrentPage != 0 {
-		pg.Page = body.Data.Meta.CurrentPage
+	if cp := parseFlexInt(body.Meta.CurrentPage); cp != 0 {
+		pg.Page = cp
 	}
 
-	return body.Data.Payload, pg, nil
+	return body.Payload, pg, nil
 }
 
 // GetContact returns a single contact by ID.
@@ -55,11 +72,13 @@ func (c *Client) GetContact(ctx context.Context, id int) (*Contact, error) {
 	if err != nil {
 		return nil, err
 	}
-	var contact Contact
-	if err := chatwoot.DecodeResponse(resp, &contact); err != nil {
+	var wrapper struct {
+		Payload Contact `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &wrapper); err != nil {
 		return nil, err
 	}
-	return &contact, nil
+	return &wrapper.Payload, nil
 }
 
 // CreateContact creates a new contact.
@@ -73,11 +92,13 @@ func (c *Client) CreateContact(ctx context.Context, opts CreateContactOpts) (*Co
 	if err != nil {
 		return nil, err
 	}
-	var contact Contact
-	if err := chatwoot.DecodeResponse(resp, &contact); err != nil {
+	var wrapper struct {
+		Payload Contact `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &wrapper); err != nil {
 		return nil, err
 	}
-	return &contact, nil
+	return &wrapper.Payload, nil
 }
 
 // UpdateContact updates an existing contact.
@@ -91,11 +112,13 @@ func (c *Client) UpdateContact(ctx context.Context, id int, opts UpdateContactOp
 	if err != nil {
 		return nil, err
 	}
-	var contact Contact
-	if err := chatwoot.DecodeResponse(resp, &contact); err != nil {
+	var wrapper struct {
+		Payload Contact `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &wrapper); err != nil {
 		return nil, err
 	}
-	return &contact, nil
+	return &wrapper.Payload, nil
 }
 
 // DeleteContact deletes a contact by ID.
@@ -117,28 +140,26 @@ func (c *Client) SearchContacts(ctx context.Context, query string, page int) ([]
 		return nil, nil, err
 	}
 
-	var body struct {
-		Data struct {
-			Payload []Contact `json:"payload"`
-			Meta    struct {
-				Count       int `json:"count"`
-				CurrentPage int `json:"current_page"`
-			} `json:"meta"`
-		} `json:"data"`
+	var searchBody struct {
+		Payload []Contact `json:"payload"`
+		Meta    struct {
+			Count       int             `json:"count"`
+			CurrentPage json.RawMessage `json:"current_page"`
+		} `json:"meta"`
 	}
-	if err := chatwoot.DecodeResponse(resp, &body); err != nil {
+	if err := chatwoot.DecodeResponse(resp, &searchBody); err != nil {
 		return nil, nil, err
 	}
 
 	pg := &contract.Pagination{
 		Page:       page,
-		TotalCount: body.Data.Meta.Count,
+		TotalCount: searchBody.Meta.Count,
 	}
-	if body.Data.Meta.CurrentPage != 0 {
-		pg.Page = body.Data.Meta.CurrentPage
+	if cp := parseFlexInt(searchBody.Meta.CurrentPage); cp != 0 {
+		pg.Page = cp
 	}
 
-	return body.Data.Payload, pg, nil
+	return searchBody.Payload, pg, nil
 }
 
 // FilterContacts filters contacts using a payload of filter rules.
@@ -155,13 +176,11 @@ func (c *Client) FilterContacts(ctx context.Context, opts FilterContactsOpts) ([
 	}
 
 	var respBody struct {
-		Data struct {
-			Payload []Contact `json:"payload"`
-			Meta    struct {
-				Count       int `json:"count"`
-				CurrentPage int `json:"current_page"`
-			} `json:"meta"`
-		} `json:"data"`
+		Payload []Contact `json:"payload"`
+		Meta    struct {
+			Count       int             `json:"count"`
+			CurrentPage json.RawMessage `json:"current_page"`
+		} `json:"meta"`
 	}
 	if err := chatwoot.DecodeResponse(resp, &respBody); err != nil {
 		return nil, nil, err
@@ -169,13 +188,13 @@ func (c *Client) FilterContacts(ctx context.Context, opts FilterContactsOpts) ([
 
 	pg := &contract.Pagination{
 		Page:       opts.Page,
-		TotalCount: respBody.Data.Meta.Count,
+		TotalCount: respBody.Meta.Count,
 	}
-	if respBody.Data.Meta.CurrentPage != 0 {
-		pg.Page = respBody.Data.Meta.CurrentPage
+	if cp := parseFlexInt(respBody.Meta.CurrentPage); cp != 0 {
+		pg.Page = cp
 	}
 
-	return respBody.Data.Payload, pg, nil
+	return respBody.Payload, pg, nil
 }
 
 // MergeContacts merges two contacts, keeping the base and discarding the mergee.
@@ -207,11 +226,13 @@ func (c *Client) ListContactLabels(ctx context.Context, id int) ([]string, error
 	if err != nil {
 		return nil, err
 	}
-	var labels []string
-	if err := chatwoot.DecodeResponse(resp, &labels); err != nil {
+	var body struct {
+		Payload []string `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &body); err != nil {
 		return nil, err
 	}
-	return labels, nil
+	return body.Payload, nil
 }
 
 // SetContactLabels replaces all labels on a contact.
@@ -226,11 +247,13 @@ func (c *Client) SetContactLabels(ctx context.Context, id int, labels []string) 
 	if err != nil {
 		return nil, err
 	}
-	var result []string
-	if err := chatwoot.DecodeResponse(resp, &result); err != nil {
+	var respBody struct {
+		Payload []string `json:"payload"`
+	}
+	if err := chatwoot.DecodeResponse(resp, &respBody); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return respBody.Payload, nil
 }
 
 // ListContactConversations returns conversations for a contact.

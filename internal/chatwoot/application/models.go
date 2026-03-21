@@ -75,6 +75,21 @@ type AgentBot struct {
 	Name string `json:"name"`
 }
 
+// StatusToggleResponse represents the API response from toggle_status.
+type StatusToggleResponse struct {
+	Success        bool    `json:"success"`
+	ConversationID int     `json:"conversation_id"`
+	CurrentStatus  string  `json:"current_status"`
+	SnoozedUntil   *string `json:"snoozed_until,omitempty"`
+}
+
+// PriorityToggleResponse represents the API response from toggle_priority.
+type PriorityToggleResponse struct {
+	Success        bool   `json:"success"`
+	ConversationID int    `json:"conversation_id"`
+	CurrentPriority string `json:"current_priority"`
+}
+
 // ConversationMeta holds conversation count metadata.
 type ConversationMeta struct {
 	AllCount      int `json:"all_count"`

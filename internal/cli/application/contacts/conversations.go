@@ -18,8 +18,8 @@ var conversationsListCmd = &cobra.Command{
 }
 
 func init() {
-	conversationsListCmd.Flags().Int("id", 0, "Contact ID")
-	conversationsListCmd.MarkFlagRequired("id")
+	conversationsListCmd.Flags().Int("contact-id", 0, "Contact ID")
+	conversationsListCmd.MarkFlagRequired("contact-id")
 	contactConversationsCmd.AddCommand(conversationsListCmd)
 }
 
@@ -37,7 +37,7 @@ func runConversationsList(cmd *cobra.Command, args []string) error {
 	transport := chatwoot.NewClient(rctx.BaseURL, tokenAuth.Token, tokenAuth.HeaderName)
 	client := appapi.NewClient(transport, rctx.AccountID)
 
-	id, _ := cmd.Flags().GetInt("id")
+	id, _ := cmd.Flags().GetInt("contact-id")
 	ctx := context.Background()
 
 	conversations, err := client.ListContactConversations(ctx, id)

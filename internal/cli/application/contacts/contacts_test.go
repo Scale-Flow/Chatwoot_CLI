@@ -14,12 +14,10 @@ func TestContactsList(t *testing.T) {
 			t.Errorf("method = %q, want GET", r.Method)
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"data": map[string]any{
-				"payload": []map[string]any{
-					{"id": 1, "name": "Alice", "account_id": 1},
-				},
-				"meta": map[string]any{"count": 1, "current_page": 1},
+			"payload": []map[string]any{
+				{"id": 1, "name": "Alice", "account_id": 1},
 			},
+			"meta": map[string]any{"count": 1, "current_page": 1},
 		})
 	}))
 	defer srv.Close()
@@ -55,7 +53,7 @@ func TestContactsGet(t *testing.T) {
 			t.Errorf("method = %q, want GET", r.Method)
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"id": 42, "name": "Bob", "account_id": 1,
+			"payload": map[string]any{"id": 42, "name": "Bob", "account_id": 1},
 		})
 	}))
 	defer srv.Close()
@@ -159,12 +157,10 @@ func TestContactsSearch(t *testing.T) {
 			t.Error("missing query parameter")
 		}
 		json.NewEncoder(w).Encode(map[string]any{
-			"data": map[string]any{
-				"payload": []map[string]any{
-					{"id": 1, "name": "Alice", "account_id": 1},
-				},
-				"meta": map[string]any{"count": 1, "current_page": 1},
+			"payload": []map[string]any{
+				{"id": 1, "name": "Alice", "account_id": 1},
 			},
+			"meta": map[string]any{"count": 1, "current_page": 1},
 		})
 	}))
 	defer srv.Close()
@@ -234,7 +230,7 @@ func TestContactsLabelsSet(t *testing.T) {
 			t.Errorf("method = %q, want POST", r.Method)
 		}
 		json.NewDecoder(r.Body).Decode(&gotBody)
-		json.NewEncoder(w).Encode([]string{"vip", "lead"})
+		json.NewEncoder(w).Encode(map[string]any{"payload": []string{"vip", "lead"}})
 	}))
 	defer srv.Close()
 

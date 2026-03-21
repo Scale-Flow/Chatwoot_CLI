@@ -43,11 +43,11 @@ func runToggleStatus(cmd *cobra.Command, args []string) error {
 	status, _ := cmd.Flags().GetString("status")
 	ctx := context.Background()
 
-	convo, err := client.ToggleConversationStatus(ctx, id, status)
+	result, err := client.ToggleConversationStatus(ctx, id, status)
 	if err != nil {
 		return cmdutil.WriteError(cmd, contract.ErrCodeServer, err.Error())
 	}
 
-	resp := contract.Success(convo)
+	resp := contract.Success(result)
 	return contract.Write(cmd.OutOrStdout(), resp, cmdutil.Pretty(cmd))
 }

@@ -13,10 +13,8 @@ func TestCustomAttributesList(t *testing.T) {
 		if r.Method != http.MethodGet {
 			t.Errorf("method = %q, want GET", r.Method)
 		}
-		json.NewEncoder(w).Encode(map[string]any{
-			"data": []map[string]any{
-				{"id": 1, "attribute_display_name": "Region", "attribute_key": "region"},
-			},
+		json.NewEncoder(w).Encode([]map[string]any{
+			{"id": 1, "attribute_display_name": "Region", "attribute_key": "region"},
 		})
 	}))
 	defer srv.Close()
