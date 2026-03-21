@@ -119,7 +119,6 @@ Existing methods: `ListConversations`, `GetConversation`.
 |--------|------|------|---------|
 | `CreateConversation(ctx, CreateConversationOpts)` | POST | `/api/v1/accounts/{id}/conversations` | `(*Conversation, error)` |
 | `UpdateConversation(ctx, id, UpdateConversationOpts)` | PATCH | `/api/v1/accounts/{id}/conversations/{cid}` | `(*Conversation, error)` |
-| `SearchConversations(ctx, query, page)` | GET | `/api/v1/accounts/{id}/conversations/search` | `([]Conversation, *Pagination, error)` |
 | `FilterConversations(ctx, FilterConversationsOpts)` | POST | `/api/v1/accounts/{id}/conversations/filter` | `([]Conversation, *Pagination, error)` |
 | `GetConversationMeta(ctx)` | GET | `/api/v1/accounts/{id}/conversations/meta` | `(*ConversationMeta, error)` |
 | `ToggleConversationStatus(ctx, id, status)` | POST | `/api/v1/accounts/{id}/conversations/{cid}/toggle_status` | `(*Conversation, error)` |
@@ -300,7 +299,6 @@ internal/cli/application/
     get.go               — conversations get --id
     create.go            — conversations create (--contact-id, --inbox-id, etc.)
     update.go            — conversations update --id (--status, --priority)
-    search.go            — conversations search --query [--page, --per-page]
     filter.go            — conversations filter --payload (JSON)
     meta.go              — conversations meta
     toggle_status.go     — conversations toggle-status --id --status
@@ -536,7 +534,7 @@ mapping — covered by transport layer tests from Sprint A.
 - `go build ./cmd/chatwoot/` succeeds
 - `chatwoot application contacts list` returns JSON envelope with pagination
 - `chatwoot application conversations list --status open` filters correctly
-- `chatwoot application messages create --conversation-id N --content "..."` sends PATCH
+- `chatwoot application messages create --conversation-id N --content "..."` sends POST
 - `chatwoot application inboxes list` returns inbox data
 - `--all` flag auto-paginates on at least contacts and conversations list
 - `--labels` comma-separated values work on label set commands
@@ -549,9 +547,10 @@ mapping — covered by transport layer tests from Sprint A.
 ## Out of Scope
 
 - Contacts: import, export, notes, avatar delete, custom attributes destroy
-- Conversations: transcript, mute/unmute, update-last-seen, attachments,
-  inbox-assistant, participants, draft-messages, direct-uploads,
-  reporting-events
+- Conversations: search (source-derived, no documented API endpoint — use
+  filter instead), toggle-typing-status, custom-attributes, unread, transcript,
+  mute/unmute, update-last-seen, attachments, inbox-assistant, participants,
+  draft-messages, direct-uploads, reporting-events
 - Inboxes: delete, assignable-agents, campaigns, avatar delete,
   sync-templates, health, register-webhook, csat-template, assignment-policy
 - Messages: update, translate, retry
