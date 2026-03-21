@@ -154,3 +154,329 @@ type UpdateInboxOpts struct {
 	Name                 *string `json:"name,omitempty"`
 	EnableAutoAssignment *bool   `json:"enable_auto_assignment,omitempty"`
 }
+
+// Team represents a Chatwoot team.
+type Team struct {
+	ID              int    `json:"id"`
+	Name            string `json:"name"`
+	Description     string `json:"description,omitempty"`
+	AllowAutoAssign bool   `json:"allow_auto_assign"`
+	AccountID       int    `json:"account_id"`
+	IsMember        bool   `json:"is_member,omitempty"`
+}
+
+// CannedResponse represents a saved reply template.
+type CannedResponse struct {
+	ID        int    `json:"id"`
+	ShortCode string `json:"short_code"`
+	Content   string `json:"content"`
+	AccountID int    `json:"account_id,omitempty"`
+}
+
+// Webhook represents a webhook subscription.
+type Webhook struct {
+	ID            int      `json:"id"`
+	URL           string   `json:"url"`
+	Subscriptions []string `json:"subscriptions"`
+	AccountID     int      `json:"account_id,omitempty"`
+}
+
+// AutomationRule represents an automation rule.
+type AutomationRule struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	EventName   string `json:"event_name"`
+	Conditions  any    `json:"conditions"`
+	Actions     any    `json:"actions"`
+	AccountID   int    `json:"account_id,omitempty"`
+}
+
+// Label represents an account-level label definition.
+type Label struct {
+	ID            int    `json:"id"`
+	Title         string `json:"title"`
+	Description   string `json:"description,omitempty"`
+	Color         string `json:"color,omitempty"`
+	ShowOnSidebar bool   `json:"show_on_sidebar,omitempty"`
+}
+
+// CustomAttribute represents a custom attribute definition.
+type CustomAttribute struct {
+	ID                   int    `json:"id"`
+	AttributeDisplayName string `json:"attribute_display_name"`
+	AttributeDisplayType string `json:"attribute_display_type"`
+	AttributeDescription string `json:"attribute_description,omitempty"`
+	AttributeKey         string `json:"attribute_key"`
+	AttributeModel       string `json:"attribute_model"`
+}
+
+// CustomFilter represents a saved filter query.
+type CustomFilter struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+	Query any    `json:"query"`
+}
+
+// AccountInfo represents account details.
+type AccountInfo struct {
+	ID               int    `json:"id"`
+	Name             string `json:"name"`
+	Locale           string `json:"locale,omitempty"`
+	Domain           string `json:"domain,omitempty"`
+	CustomAttributes any    `json:"custom_attributes,omitempty"`
+}
+
+// AccountAgentBot represents an account-scoped agent bot.
+type AccountAgentBot struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	BotType     string `json:"bot_type,omitempty"`
+	OutgoingURL string `json:"outgoing_url,omitempty"`
+	BotConfig   any    `json:"bot_config,omitempty"`
+	AccountID   int    `json:"account_id,omitempty"`
+}
+
+// AuditLog represents an audit log entry.
+type AuditLog struct {
+	ID            int                `json:"id"`
+	Action        string             `json:"action"`
+	AuditableType string             `json:"auditable_type"`
+	AuditableID   int                `json:"auditable_id"`
+	UserID        int                `json:"user_id,omitempty"`
+	CreatedAt     chatwoot.Timestamp `json:"created_at,omitempty"`
+}
+
+// Integration represents an available integration app.
+type Integration struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Hooks []any  `json:"hooks,omitempty"`
+}
+
+// IntegrationHook represents an activated integration hook.
+type IntegrationHook struct {
+	ID       int    `json:"id"`
+	AppID    string `json:"app_id"`
+	InboxID  int    `json:"inbox_id,omitempty"`
+	Status   int    `json:"status,omitempty"`
+	Settings any    `json:"settings,omitempty"`
+}
+
+// Portal represents a help center portal.
+type Portal struct {
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
+	Slug         string `json:"slug,omitempty"`
+	Color        string `json:"color,omitempty"`
+	HeaderText   string `json:"header_text,omitempty"`
+	CustomDomain string `json:"custom_domain,omitempty"`
+	Archived     bool   `json:"archived,omitempty"`
+}
+
+// Article represents a help center article.
+type Article struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Slug        string `json:"slug,omitempty"`
+	Content     string `json:"content,omitempty"`
+	Description string `json:"description,omitempty"`
+	Status      int    `json:"status,omitempty"`
+	CategoryID  int    `json:"category_id,omitempty"`
+	AuthorID    int    `json:"author_id,omitempty"`
+}
+
+// Category represents a help center category.
+type Category struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Locale      string `json:"locale,omitempty"`
+	Slug        string `json:"slug,omitempty"`
+	Position    int    `json:"position,omitempty"`
+}
+
+// ReportSummary holds account report summary data.
+type ReportSummary struct {
+	AvgFirstResponseTime  string `json:"avg_first_response_time"`
+	AvgResolutionTime     string `json:"avg_resolution_time"`
+	ConversationsCount    int    `json:"conversations_count"`
+	IncomingMessagesCount int    `json:"incoming_messages_count"`
+	OutgoingMessagesCount int    `json:"outgoing_messages_count"`
+	ResolutionsCount      int    `json:"resolutions_count"`
+	Previous              any    `json:"previous,omitempty"`
+}
+
+// --- Sprint D Opts types ---
+
+type CreateTeamOpts struct {
+	Name            string `json:"name"`
+	Description     string `json:"description,omitempty"`
+	AllowAutoAssign *bool  `json:"allow_auto_assign,omitempty"`
+}
+
+type UpdateTeamOpts struct {
+	Name            *string `json:"name,omitempty"`
+	Description     *string `json:"description,omitempty"`
+	AllowAutoAssign *bool   `json:"allow_auto_assign,omitempty"`
+}
+
+type CreateAgentOpts struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Role  string `json:"role,omitempty"`
+}
+
+type UpdateAgentOpts struct {
+	Name *string `json:"name,omitempty"`
+	Role *string `json:"role,omitempty"`
+}
+
+type CreateCannedResponseOpts struct {
+	ShortCode string `json:"short_code"`
+	Content   string `json:"content"`
+}
+
+type UpdateCannedResponseOpts struct {
+	ShortCode *string `json:"short_code,omitempty"`
+	Content   *string `json:"content,omitempty"`
+}
+
+type ReportOpts struct {
+	Metric string
+	Type   string
+	ID     string
+	Since  string
+	Until  string
+}
+
+type CreateWebhookOpts struct {
+	URL           string   `json:"url"`
+	Subscriptions []string `json:"subscriptions,omitempty"`
+}
+
+type UpdateWebhookOpts struct {
+	URL           *string  `json:"url,omitempty"`
+	Subscriptions []string `json:"subscriptions,omitempty"`
+}
+
+type CreateAutomationRuleOpts struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	EventName   string `json:"event_name"`
+	Conditions  any    `json:"conditions"`
+	Actions     any    `json:"actions"`
+}
+
+type UpdateAutomationRuleOpts struct {
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	EventName   *string `json:"event_name,omitempty"`
+	Conditions  any     `json:"conditions,omitempty"`
+	Actions     any     `json:"actions,omitempty"`
+}
+
+type CreateLabelOpts struct {
+	Title         string `json:"title"`
+	Description   string `json:"description,omitempty"`
+	Color         string `json:"color,omitempty"`
+	ShowOnSidebar *bool  `json:"show_on_sidebar,omitempty"`
+}
+
+type UpdateLabelOpts struct {
+	Title         *string `json:"title,omitempty"`
+	Description   *string `json:"description,omitempty"`
+	Color         *string `json:"color,omitempty"`
+	ShowOnSidebar *bool   `json:"show_on_sidebar,omitempty"`
+}
+
+type CreateCustomAttributeOpts struct {
+	AttributeDisplayName string `json:"attribute_display_name"`
+	AttributeKey         string `json:"attribute_key"`
+	AttributeModel       string `json:"attribute_model"`
+	AttributeDisplayType string `json:"attribute_display_type"`
+	AttributeDescription string `json:"attribute_description,omitempty"`
+}
+
+type UpdateCustomAttributeOpts struct {
+	AttributeDisplayName *string `json:"attribute_display_name,omitempty"`
+	AttributeDescription *string `json:"attribute_description,omitempty"`
+}
+
+type CreateCustomFilterOpts struct {
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+	Query any    `json:"query"`
+}
+
+type UpdateCustomFilterOpts struct {
+	Name  *string `json:"name,omitempty"`
+	Query any     `json:"query,omitempty"`
+}
+
+type UpdateAccountOpts struct {
+	Name   *string `json:"name,omitempty"`
+	Locale *string `json:"locale,omitempty"`
+	Domain *string `json:"domain,omitempty"`
+}
+
+type CreateAgentBotOpts struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	BotType     string `json:"bot_type,omitempty"`
+	OutgoingURL string `json:"outgoing_url,omitempty"`
+	BotConfig   any    `json:"bot_config,omitempty"`
+}
+
+type UpdateAgentBotOpts struct {
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	BotType     *string `json:"bot_type,omitempty"`
+	OutgoingURL *string `json:"outgoing_url,omitempty"`
+	BotConfig   any     `json:"bot_config,omitempty"`
+}
+
+type CreateIntegrationHookOpts struct {
+	AppID    string `json:"app_id"`
+	InboxID  int    `json:"inbox_id,omitempty"`
+	Settings any    `json:"settings,omitempty"`
+}
+
+type UpdateIntegrationHookOpts struct {
+	Settings any `json:"settings,omitempty"`
+}
+
+type CreatePortalOpts struct {
+	Name         string `json:"name"`
+	Slug         string `json:"slug,omitempty"`
+	Color        string `json:"color,omitempty"`
+	HeaderText   string `json:"header_text,omitempty"`
+	CustomDomain string `json:"custom_domain,omitempty"`
+}
+
+type UpdatePortalOpts struct {
+	Name         *string `json:"name,omitempty"`
+	Slug         *string `json:"slug,omitempty"`
+	Color        *string `json:"color,omitempty"`
+	HeaderText   *string `json:"header_text,omitempty"`
+	CustomDomain *string `json:"custom_domain,omitempty"`
+	Archived     *bool   `json:"archived,omitempty"`
+}
+
+type CreateArticleOpts struct {
+	Title       string `json:"title"`
+	Content     string `json:"content,omitempty"`
+	Description string `json:"description,omitempty"`
+	Status      int    `json:"status,omitempty"`
+	CategoryID  int    `json:"category_id,omitempty"`
+	AuthorID    int    `json:"author_id,omitempty"`
+}
+
+type CreateCategoryOpts struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Locale      string `json:"locale,omitempty"`
+	Position    int    `json:"position,omitempty"`
+}
