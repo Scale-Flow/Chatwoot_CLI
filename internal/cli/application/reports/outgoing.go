@@ -18,6 +18,8 @@ var outgoingCmd = &cobra.Command{
 }
 
 func init() {
+	outgoingCmd.Flags().String("type", "", "Report type (required)")
+	outgoingCmd.MarkFlagRequired("type")
 	outgoingCmd.Flags().String("since", "", "Start timestamp")
 	outgoingCmd.Flags().String("until", "", "End timestamp")
 	Cmd.AddCommand(outgoingCmd)
@@ -35,10 +37,11 @@ func runOutgoing(cmd *cobra.Command, args []string) error {
 	transport := chatwoot.NewClient(rctx.BaseURL, tokenAuth.Token, tokenAuth.HeaderName)
 	client := appapi.NewClient(transport, rctx.AccountID)
 
+	reportType, _ := cmd.Flags().GetString("type")
 	since, _ := cmd.Flags().GetString("since")
 	until, _ := cmd.Flags().GetString("until")
 
-	opts := appapi.ReportOpts{Since: since, Until: until}
+	opts := appapi.ReportOpts{Type: reportType, Since: since, Until: until}
 	result, err := client.GetOutgoingMessagesCount(context.Background(), opts)
 	if err != nil {
 		return cmdutil.WriteError(cmd, contract.ErrCodeServer, err.Error())
