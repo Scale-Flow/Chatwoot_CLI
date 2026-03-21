@@ -21,6 +21,7 @@ func init() {
 	_ = toggleTypingCmd.MarkFlagRequired("conversation-id")
 	toggleTypingCmd.Flags().String("status", "", "Typing status: on or off")
 	_ = toggleTypingCmd.MarkFlagRequired("status")
+	Cmd.AddCommand(toggleTypingCmd)
 }
 
 func runToggleTyping(cmd *cobra.Command, args []string) error {

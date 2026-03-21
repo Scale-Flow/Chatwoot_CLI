@@ -16,6 +16,10 @@ var getCmd = &cobra.Command{
 	RunE:  runGet,
 }
 
+func init() {
+	Cmd.AddCommand(getCmd)
+}
+
 func runGet(cmd *cobra.Command, args []string) error {
 	rctx, err := cmdutil.ResolveContext(cmd)
 	if err != nil {

@@ -19,6 +19,7 @@ var updateLastSeenCmd = &cobra.Command{
 func init() {
 	updateLastSeenCmd.Flags().Int("conversation-id", 0, "Conversation ID")
 	_ = updateLastSeenCmd.MarkFlagRequired("conversation-id")
+	Cmd.AddCommand(updateLastSeenCmd)
 }
 
 func runUpdateLastSeen(cmd *cobra.Command, args []string) error {

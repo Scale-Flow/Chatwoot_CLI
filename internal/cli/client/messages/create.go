@@ -22,6 +22,7 @@ func init() {
 	createCmd.Flags().String("content", "", "Message content")
 	_ = createCmd.MarkFlagRequired("content")
 	createCmd.Flags().String("type", "", "Message type")
+	Cmd.AddCommand(createCmd)
 }
 
 func runCreate(cmd *cobra.Command, args []string) error {

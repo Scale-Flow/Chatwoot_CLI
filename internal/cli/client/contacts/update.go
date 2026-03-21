@@ -20,6 +20,7 @@ func init() {
 	updateCmd.Flags().String("name", "", "Contact name")
 	updateCmd.Flags().String("email", "", "Contact email")
 	updateCmd.Flags().String("phone", "", "Contact phone number")
+	Cmd.AddCommand(updateCmd)
 }
 
 func runUpdate(cmd *cobra.Command, args []string) error {

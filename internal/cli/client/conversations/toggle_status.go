@@ -19,6 +19,7 @@ var toggleStatusCmd = &cobra.Command{
 func init() {
 	toggleStatusCmd.Flags().Int("conversation-id", 0, "Conversation ID")
 	_ = toggleStatusCmd.MarkFlagRequired("conversation-id")
+	Cmd.AddCommand(toggleStatusCmd)
 }
 
 func runToggleStatus(cmd *cobra.Command, args []string) error {

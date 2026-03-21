@@ -16,6 +16,10 @@ var createCmd = &cobra.Command{
 	RunE:  runCreate,
 }
 
+func init() {
+	Cmd.AddCommand(createCmd)
+}
+
 func runCreate(cmd *cobra.Command, args []string) error {
 	rctx, err := cmdutil.ResolveContext(cmd)
 	if err != nil {

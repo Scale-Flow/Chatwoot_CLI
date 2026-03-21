@@ -16,6 +16,10 @@ var listCmd = &cobra.Command{
 	RunE:  runList,
 }
 
+func init() {
+	Cmd.AddCommand(listCmd)
+}
+
 func runList(cmd *cobra.Command, args []string) error {
 	rctx, err := cmdutil.ResolveContext(cmd)
 	if err != nil {

@@ -19,6 +19,7 @@ var listCmd = &cobra.Command{
 func init() {
 	listCmd.Flags().Int("conversation-id", 0, "Conversation ID")
 	_ = listCmd.MarkFlagRequired("conversation-id")
+	Cmd.AddCommand(listCmd)
 }
 
 func runList(cmd *cobra.Command, args []string) error {

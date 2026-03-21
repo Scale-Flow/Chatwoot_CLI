@@ -23,6 +23,7 @@ func init() {
 	_ = updateCmd.MarkFlagRequired("message-id")
 	updateCmd.Flags().String("content", "", "Message content")
 	_ = updateCmd.MarkFlagRequired("content")
+	Cmd.AddCommand(updateCmd)
 }
 
 func runUpdate(cmd *cobra.Command, args []string) error {

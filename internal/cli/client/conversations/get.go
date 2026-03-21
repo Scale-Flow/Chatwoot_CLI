@@ -19,6 +19,7 @@ var getCmd = &cobra.Command{
 func init() {
 	getCmd.Flags().Int("conversation-id", 0, "Conversation ID")
 	_ = getCmd.MarkFlagRequired("conversation-id")
+	Cmd.AddCommand(getCmd)
 }
 
 func runGet(cmd *cobra.Command, args []string) error {
