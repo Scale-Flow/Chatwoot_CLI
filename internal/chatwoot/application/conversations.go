@@ -9,13 +9,6 @@ import (
 	chatwoot "github.com/chatwoot/chatwoot-cli/internal/chatwoot"
 )
 
-// ListConversationsOpts holds optional filters for listing conversations.
-type ListConversationsOpts struct {
-	Page    int
-	Status  string
-	InboxID int
-}
-
 // ListConversations returns a page of conversations for the account.
 func (c *Client) ListConversations(ctx context.Context, opts ListConversationsOpts) ([]Conversation, error) {
 	path := fmt.Sprintf("/api/v1/accounts/%d/conversations?page=%d", c.accountID, opts.Page)
