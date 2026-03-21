@@ -36,3 +36,12 @@ Thumbs.db
 /chatwoot
 /dist/
 .worktrees/
+
+# Development docs
+docs/archived/
+docs/superpowers/
+Roadmap.md
+CLAUDE.md
+
+# Superpowers
+.superpowers/
