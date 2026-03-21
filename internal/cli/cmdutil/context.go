@@ -106,6 +106,28 @@ func ResolveAuth(profileName string, mode credentials.AuthMode) (auth.TokenAuth,
 	}
 }
 
+// ClientAuthContext holds identifier-based auth for client API commands.
+type ClientAuthContext struct {
+	InboxIdentifier   string
+	ContactIdentifier string
+}
+
+// ResolveClientAuth resolves client API identifiers from flags and env vars.
+func ResolveClientAuth(cmd *cobra.Command) (*ClientAuthContext, error) {
+	inboxID, _ := cmd.Flags().GetString("inbox-id")
+	if inboxID == "" {
+		inboxID = os.Getenv("CHATWOOT_INBOX_IDENTIFIER")
+	}
+	if inboxID == "" {
+		return nil, fmt.Errorf("--inbox-id flag or CHATWOOT_INBOX_IDENTIFIER env var required")
+	}
+	contactID, _ := cmd.Flags().GetString("contact-id")
+	if contactID == "" {
+		contactID = os.Getenv("CHATWOOT_CONTACT_IDENTIFIER")
+	}
+	return &ClientAuthContext{InboxIdentifier: inboxID, ContactIdentifier: contactID}, nil
+}
+
 // WriteError writes an error envelope to stdout and returns an error for Cobra.
 func WriteError(cmd *cobra.Command, code, message string) error {
 	pretty, _ := cmd.Root().PersistentFlags().GetBool("pretty")
