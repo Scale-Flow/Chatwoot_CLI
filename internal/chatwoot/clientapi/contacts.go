@@ -38,3 +38,20 @@ func (c *Client) GetContact(ctx context.Context, contactIdentifier string) (*Con
 	}
 	return &contact, nil
 }
+
+func (c *Client) UpdateContact(ctx context.Context, contactIdentifier string, opts UpdateContactOpts) (*Contact, error) {
+	path := fmt.Sprintf("/public/api/v1/inboxes/%s/contacts/%s", c.inboxIdentifier, contactIdentifier)
+	body, err := json.Marshal(opts)
+	if err != nil {
+		return nil, fmt.Errorf("marshal update contact: %w", err)
+	}
+	resp, err := c.transport.DoWithRetry(ctx, http.MethodPatch, path, body)
+	if err != nil {
+		return nil, err
+	}
+	var contact Contact
+	if err := chatwoot.DecodeResponse(resp, &contact); err != nil {
+		return nil, err
+	}
+	return &contact, nil
+}

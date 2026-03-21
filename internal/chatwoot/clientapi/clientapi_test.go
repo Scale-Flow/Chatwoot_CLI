@@ -61,3 +61,38 @@ func TestGetContact(t *testing.T) {
 		t.Errorf("Name = %q, want %q", contact.Name, "Existing User")
 	}
 }
+
+func TestUpdateContact(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/public/api/v1/inboxes/inbox-abc/contacts/contact-xyz" {
+			t.Errorf("path = %q", r.URL.Path)
+		}
+		if r.Method != http.MethodPatch {
+			t.Errorf("method = %q, want PATCH", r.Method)
+		}
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("decode body: %v", err)
+		}
+		if _, ok := body["name"]; !ok {
+			t.Errorf("body missing name field")
+		}
+		json.NewEncoder(w).Encode(map[string]any{
+			"source_id": "contact-xyz",
+			"name":      "Updated User",
+		})
+	}))
+	defer srv.Close()
+
+	transport := chatwoot.NewClient(srv.URL, "", "")
+	client := NewClient(transport, "inbox-abc")
+
+	name := "Updated User"
+	contact, err := client.UpdateContact(context.Background(), "contact-xyz", UpdateContactOpts{Name: &name})
+	if err != nil {
+		t.Fatalf("UpdateContact error: %v", err)
+	}
+	if contact.Name != "Updated User" {
+		t.Errorf("Name = %q, want %q", contact.Name, "Updated User")
+	}
+}
