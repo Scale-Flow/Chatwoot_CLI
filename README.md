@@ -1,6 +1,9 @@
 # chatwoot-cli
 
-<!-- Badges: build status, release version, Go reference, license -->
+[![Go](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go&logoColor=white)](https://go.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/Scale-Flow/Chatwoot_CLI?include_prereleases&sort=semver)](https://github.com/Scale-Flow/Chatwoot_CLI/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Scale-Flow/Chatwoot_CLI)](https://goreportcard.com/report/github.com/Scale-Flow/Chatwoot_CLI)
 
 A machine-friendly CLI for the Chatwoot API. JSON on stdout, diagnostics on stderr, zero interactive prompts. Built for AI agents, scripts, and automation.
 
